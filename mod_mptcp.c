@@ -1,5 +1,5 @@
 /*
-   mod_mptcp 0.2
+   mod_mptcp 0.1
    Copyright (C) 2017 Markus Jungbluth
 
    Author: Markus Jungbluth
