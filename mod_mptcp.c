@@ -44,21 +44,17 @@ static int pre_connection(conn_rec *c, void* csd)
 {
     int optval;
     int optlen;
-
-    struct tcp_info info;
-    int infoLen = sizeof(info);
-
     apr_os_sock_t *p_os_fd = apr_palloc( c->pool, sizeof(apr_os_sock_t) );
-
-    /* Retrieve the new connection's socket number */
+   
     apr_os_sock_get(p_os_fd, (apr_socket_t *)csd);
+   
     getsockopt(*p_os_fd, SOL_TCP, MPTCP_ENABLED, &optval, &optlen);
 
     char buffer[5];
     sprintf(buffer, "%d", optval);
     apr_table_set(c->notes, "MPTCP_ENABLED", buffer);
     
-    ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status: %s", buffer); 
+    //ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status: %s", buffer); 
 
    return OK;
 }
@@ -68,12 +64,10 @@ static int mptcp_env_handler(request_rec *r)
 
 
     const char* mptcp_status = apr_table_get(r->connection->notes, "MPTCP_ENABLED");
-    ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status2: %s", mptcp_status); 
+    //ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status2: %s", mptcp_status); 
     apr_table_set(r->subprocess_env, "MPTCP_ENABLED", mptcp_status);
 
 
-
-    //apr_table_setn(sconf->vars, name, value ? value : "");
     return OK;
 }
 
