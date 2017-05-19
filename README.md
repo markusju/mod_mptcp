@@ -14,6 +14,7 @@ Please note that the latter command will cause your web server to restart in ord
 ## Using the Module
 The module sets an Apache Environment variable, which can easily be read by many scripting languages.
 
+Below we show an example for a simple PHP script:
 ```
 <?php
 if ($_SERVER['MPTCP_ENABLED']) {
