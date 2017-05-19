@@ -1,8 +1,8 @@
 /*
    mod_mptcp 0.2
-   Copyright (C) 2017 Markus Jungbluth
+   Copyright (C) 2008 Monshouwer Internet Diensten
 
-   Author: Markus Jungbluth
+   Author: Kees Monshouwer
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,10 +20,14 @@
 #include "httpd.h"
 #include "http_config.h"
 #include "http_connection.h"
+#include "http_protocol.h"
 #include "http_log.h"
 #include "ap_mpm.h"
+#include "ap_config.h"
 #include "apr_strings.h"
 #include <netinet/tcp.h>
+#include <stdlib.h>
+#include "ap_config.h"
 
 
 #define MODULE_NAME "mod_mptcp"
@@ -32,34 +36,46 @@
 
 module AP_MODULE_DECLARE_DATA mptcp_module;
 
-static int server_limit, thread_limit;
 
 
+char* itoa(int, char* , int);
 
 static int pre_connection(conn_rec *c, void* csd)
 {
-
     int optval;
     int optlen;
 
-     struct tcp_info info;
-     int infoLen = sizeof(info);
+    struct tcp_info info;
+    int infoLen = sizeof(info);
 
     apr_os_sock_t *p_os_fd = apr_palloc( c->pool, sizeof(apr_os_sock_t) );
 
     /* Retrieve the new connection's socket number */
     apr_os_sock_get(p_os_fd, (apr_socket_t *)csd);
-    //getsockopt(*p_os_fd, SOL_TCP, TCP_INFO, (void *)&info, (socklen_t *)&infoLen);
     getsockopt(*p_os_fd, SOL_TCP, MPTCP_ENABLED, &optval, &optlen);
-    ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status: %u", optval); 
 
-    /*ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP %u %u %u %u %u %u %u %u %u %u %u\n", info.tcpi_snd_cwnd, info.tcpi_snd_ssthresh,
-   info.tcpi_unacked, info.tcpi_lost, info.tcpi_retrans, info.tcpi_total_retrans,
-   info.tcpi_rtt, info.tcpi_rttvar, info.tcpi_rcv_rtt, info.tcpi_rto, info.tcpi_options);*/
+    char buffer[5];
+    sprintf(buffer, "%d", optval);
+    apr_table_set(c->notes, "MPTCP_ENABLED", buffer);
+    
+    ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status: %s", buffer); 
 
    return OK;
 }
 
+static int mptcp_env_handler(request_rec *r)
+{
+
+
+    const char* mptcp_status = apr_table_get(r->connection->notes, "MPTCP_ENABLED");
+    ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status2: %s", mptcp_status); 
+    apr_table_set(r->subprocess_env, "MPTCP_ENABLED", mptcp_status);
+
+
+
+    //apr_table_setn(sconf->vars, name, value ? value : "");
+    return OK;
+}
 
 static void child_init (apr_pool_t *p, server_rec *s)
 {
@@ -70,6 +86,7 @@ static void child_init (apr_pool_t *p, server_rec *s)
 static void register_hooks(apr_pool_t *p)
 {
     ap_hook_pre_connection(pre_connection, NULL, NULL, APR_HOOK_MIDDLE);
+    ap_hook_post_read_request(mptcp_env_handler, NULL, NULL, APR_HOOK_REALLY_FIRST);
     ap_hook_child_init(child_init, NULL, NULL, APR_HOOK_MIDDLE);    
 }
 
