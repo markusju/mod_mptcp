@@ -8,6 +8,7 @@ The build process is quick and easy. Just change to the directory you have clone
 ```
 $ make
 $ sudo make install
+$ sudo make restart
 ```
 Please note that the latter command will cause your web server to restart in order to load the mod_mptcp module.
 
