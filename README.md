@@ -26,4 +26,4 @@ if ($_SERVER['MPTCP_ENABLED']) {
 
 ```
 ### Demo
-You can see our module in action here: http://mptcp.femasrv.de/
+You can see our module in action here: http://mptcp.info/
