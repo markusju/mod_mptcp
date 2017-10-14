@@ -44,14 +44,20 @@ static int pre_connection(conn_rec *c, void* csd)
 {
     int optval;
     int optlen;
-    apr_os_sock_t *p_os_fd = apr_palloc( c->pool, sizeof(apr_os_sock_t) );
-   
-    apr_os_sock_get(p_os_fd, (apr_socket_t *)csd);
-   
-    getsockopt(*p_os_fd, SOL_TCP, MPTCP_ENABLED, &optval, &optlen);
 
-    char buffer[5];
-    sprintf(buffer, "%d", optval);
+    apr_os_sock_t *p_os_fd = apr_palloc( c->pool, sizeof(apr_os_sock_t) );
+    apr_os_sock_get(p_os_fd, (apr_socket_t *)csd);
+
+    char buffer[5];   
+
+    if (getsockopt(*p_os_fd, SOL_TCP, MPTCP_ENABLED, &optval, &optlen) != -1) {
+    	sprintf(buffer, "%d", optval);
+    } else {
+	ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "mod_mptcp: You are using this plugin without a MPTCP Linux Kernel.");
+	buffer[0] = '0';
+	buffer[1] = '\0';
+    }
+
     apr_table_set(c->notes, "MPTCP_ENABLED", buffer);
     
     //ap_log_error(APLOG_MARK, APLOG_WARNING, 0, NULL, "MPTCP Status: %s", buffer); 
