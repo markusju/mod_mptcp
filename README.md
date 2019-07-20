@@ -3,8 +3,10 @@ A module making the Apache2 Webserver aware of MPTCP.
 
 This module was tested and developed with the MPTCP Linux Kernel Implementation by UCLouvain. If the TCP connection to the server is MPTCP enabled, the APACHE Environment Variable "MPTCP_ENABLED" is set to 1. If a client is connecting using plain-old TCP the variable will be set to 0.
 
+Please note: This module will not make the Apache Web-Server MPTCP-capable, it merely adds awareness for MPTCP by setting an environment variable, allowing you to determine whether the TCP connections over which content is being delivered is MPTCP-enabled.
+
 ## Build
-The build process is quick and easy. Just change to the directory you have cloned this repo to and 'make':
+The build process is quick and easy. Make sure to install the Apache2 Development Environment (apache2-dev) first, then just change to the directory you have cloned this repo to and 'make':
 ```
 $ make
 $ sudo make install
