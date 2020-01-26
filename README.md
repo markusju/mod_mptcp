@@ -34,5 +34,5 @@ You can see our module in action here: http://mptcp.info/
 
 Can this be extended to show additional information on the MPTCP connection?
 
-Yes, we in theory could do this. However, due to the inner workings of the underlying Apache2 module we are passed the connection handle before any data is exchanged and multiple paths could be formed. The actions in the module are blocking, meaning that no data is exchanged until the method returns or exits. Therefore such information will not be available through the module.
+Yes, in theory we could do this. However, due to the inner workings of the underlying Apache2 module we are passed the connection handle before any data is exchanged and multiple paths can be formed. The actions in the module are blocking, meaning that no data is exchanged until the method returns or exits. Therefore such information will not be available through the module.
 
